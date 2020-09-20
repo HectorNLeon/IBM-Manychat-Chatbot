@@ -22,7 +22,8 @@ var sessionId; // Se declara la variable en la que se guardará la sesión
 
 /* La clase AssistantV2 tiene una funciónla cual crea la sesión
 DOCUMENTACIÓN: https://cloud.ibm.com/apidocs/assistant/assistant-v2?code=node#create-a-session */
-assistant.createSession(
+function startSesion(){
+    assistant.createSession(
     {
         assistantId: process.env.ASSISTANT_ID || '{assistant_id}',
     },
@@ -35,22 +36,42 @@ assistant.createSession(
         }
     }
 );
+}
 
 exports.getMessage = function (body) {
     return new Promise((resolve, reject) => {
-        assistant.message(
-        {
-            input: { text: body.input },
-            assistantId: process.env.ASSISTANT_ID,
-            sessionId: sessionId
-        })
-        .then(response => {
-            console.log(JSON.stringify(response.result, null, 2));
-            resolve(response.result.output.generic[0].text)
-        })
-        .catch(err => {
-            console.log(err);
-            reject(err)
+        if (sessionId == null){
+            assistant.createSession(
+                {
+                    assistantId: process.env.ASSISTANT_ID || '{assistant_id}',
+                },
+                function (error, response) {
+                    if (error) {
+                        reject(error)
+                    } else {
+                        resolve(response.result.session_id)
+                    }
+                }
+            );
+        }
+        else
+            resolve(sessionId);
+    }).then(sessionId => {
+        return new Promise((resolve, reject) => {
+            assistant.message(
+                {
+                    input: { text: body.input },
+                    assistantId: process.env.ASSISTANT_ID,
+                    sessionId: sessionId
+                })
+                .then(response => {
+                    console.log(JSON.stringify(response.result, null, 2));
+                    resolve(response.result.output.generic[0].text)
+                })
+                .catch(err => {
+                    console.log(err);
+                    reject(err)
+                });
         });
     });
 }
