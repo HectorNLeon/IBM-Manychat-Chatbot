@@ -49,6 +49,7 @@ exports.getMessage = function (body) {
                     if (error) {
                         reject(error)
                     } else {
+                        sessionId = response.result.session_id
                         resolve(response.result.session_id)
                     }
                 }
