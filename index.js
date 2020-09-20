@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json(bodyParserJsonConfig()));
 
 // Se definen las rutas que utilizará el servidor.
-app.get('/', (req, res) => res.send('Node.JS with PostgreSQL and IBM Chatbot'))
+app.get('/', (req, res) => res.send('Node.JS with IBM Chatbot'))
 
 // Ruta ejemplo: http://localhost:3000/ask
 // Funcion: ask
@@ -47,4 +47,4 @@ app.get('/api/session', initialize);
 
 
 // El servidor se queda esperando requests en el puerto 3000
-app.listen(3000, () => console.log('Listening on port 3000'))
+app.listen(process.env.PORT || 3000, () => console.log('Listening on port 3000'))
