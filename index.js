@@ -24,7 +24,7 @@ const bodyParserJsonConfig = () => ({
 const app = express();
 
 // Se importan las funciones de ask e initialize desde ./controller.js
-const { ask, initialize } = require('./controller');
+const { ask } = require('./controller');
 
 // Se le indica a express que se utilizará body-parser
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -38,13 +38,6 @@ app.get('/', (req, res) => res.send('Node.JS with IBM Chatbot'))
 // Descripción: Manda un mensaje del usuario al chatbot, y envía el response al cliente.
 // Tipo: POST
 app.post('/ask', ask)
-
-// Ruta ejemplo: http://localhost:3000/api/session
-// Funcion: initialize
-// Descripción: Genera una nueva session y lo regresa al cliente.
-// Tipo: GET
-app.get('/api/session', initialize);
-
 
 // El servidor se queda esperando requests en el puerto 3000
 app.listen(process.env.PORT || 3000, () => console.log('Listening on port 3000'))

@@ -22,25 +22,24 @@ var sessionId; // Se declara la variable en la que se guardará la sesión
 
 /* La clase AssistantV2 tiene una funciónla cual crea la sesión
 DOCUMENTACIÓN: https://cloud.ibm.com/apidocs/assistant/assistant-v2?code=node#create-a-session */
-function startSesion(){
-    assistant.createSession(
-    {
-        assistantId: process.env.ASSISTANT_ID || '{assistant_id}',
-    },
-    function (error, response) {
-        if (error) {
-            console.log(error);
-        } else {
-            sessionId = response.result.session_id
-            console.log(response.result.session_id);
+
+let usersChats = {}
+let activeUsers = []
+
+setInterval(function() {
+    var time = Date.now();
+    activeUsers = activeUsers.filter(function(item) {
+        if(time < item.time + (5000 * 60)){
+            delete usersChats[item.user]
         }
-    }
-);
-}
+       return time < item.time + (5000 * 60);
+    }); 
+}, 500);
+
 
 exports.getMessage = function (body) {
     return new Promise((resolve, reject) => {
-        if (sessionId == null){
+        if (!body.user in usersChats){
             assistant.createSession(
                 {
                     assistantId: process.env.ASSISTANT_ID || '{assistant_id}',
@@ -49,14 +48,15 @@ exports.getMessage = function (body) {
                     if (error) {
                         reject(error)
                     } else {
-                        sessionId = response.result.session_id
+                        activeUsers.push({user = body.user, time = Date.now()})
+                        usersChats[body.user] = response.result.session_id
                         resolve(response.result.session_id)
                     }
                 }
             );
         }
         else
-            resolve(sessionId);
+            resolve(usersChats[body.user]);
     }).then(sessionId => {
         return new Promise((resolve, reject) => {
             assistant.message(
@@ -66,6 +66,10 @@ exports.getMessage = function (body) {
                     sessionId: sessionId
                 })
                 .then(response => {
+                    if(response.result.output.generic[0].response_type == "search"){
+                        console.log(JSON.stringify(response.result, null, 2));
+                        resolve(response.result.output.generic[0].results)
+                    }
                     console.log(JSON.stringify(response.result, null, 2));
                     resolve(response.result.output.generic[0].text)
                 })
