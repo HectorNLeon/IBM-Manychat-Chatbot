@@ -47,9 +47,12 @@ exports.ask = (req, res, next) => {
         res.status(200);
         res.send(searchResponse);
       }
-      response.content.messages[0].text = output
-      res.status(200);
-      res.send(response);
+      else{
+        response.content.messages[0].text = output
+        res.status(200);
+        res.send(response);
+      }
+      
     })
     .catch(next);
 };

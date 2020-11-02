@@ -39,7 +39,7 @@ setInterval(function() {
 
 exports.getMessage = function (body) {
     return new Promise((resolve, reject) => {
-        if (!body.user in usersChats){
+        if (!(body.user in usersChats)){
             assistant.createSession(
                 {
                     assistantId: process.env.ASSISTANT_ID || '{assistant_id}',
@@ -48,7 +48,7 @@ exports.getMessage = function (body) {
                     if (error) {
                         reject(error)
                     } else {
-                        activeUsers.push({user = body.user, time = Date.now()})
+                        activeUsers.push({user : body.user, time : Date.now()})
                         usersChats[body.user] = response.result.session_id
                         resolve(response.result.session_id)
                     }
