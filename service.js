@@ -23,17 +23,16 @@ var sessionId; // Se declara la variable en la que se guardará la sesión
 /* La clase AssistantV2 tiene una funciónla cual crea la sesión
 DOCUMENTACIÓN: https://cloud.ibm.com/apidocs/assistant/assistant-v2?code=node#create-a-session */
 
-let usersChats = {}
-let activeUsers = []
+var usersChats = {};
 
 setInterval(function() {
     var time = Date.now();
-    activeUsers = activeUsers.filter(function(item) {
-        if(time < item.time + (5000 * 60)){
-            delete usersChats[item.user]
+    for( user in usersChats){
+        if( time - user.time >  4000 *60){
+            console.log(time +" < " + user.time)
+            delete usersChats[user]
         }
-       return time < item.time + (5000 * 60);
-    }); 
+    }
 }, 500);
 
 
@@ -48,15 +47,18 @@ exports.getMessage = function (body) {
                     if (error) {
                         reject(error)
                     } else {
-                        activeUsers.push({user : body.user, time : Date.now()})
-                        usersChats[body.user] = response.result.session_id
+                        usersChats[body.user] =  {sessionId : response.result.session_id, time: Date.now()}
+                        console.log(usersChats)
                         resolve(response.result.session_id)
                     }
                 }
             );
         }
-        else
-            resolve(usersChats[body.user]);
+        else{
+            usersChats[body.user].time = Date.now();
+            resolve(usersChats[body.user].sessionId);
+        }
+            
     }).then(sessionId => {
         return new Promise((resolve, reject) => {
             assistant.message(
