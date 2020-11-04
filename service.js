@@ -28,8 +28,8 @@ var usersChats = {};
 setInterval(function() {
     var time = Date.now();
     for( user in usersChats){
-        if( time - user.time >  4000 *60){
-            console.log(time +" < " + user.time)
+        if( time - usersChats[user].time >  4000 *60){
+            console.log(time +" < " + usersChats[user].time)
             delete usersChats[user]
         }
     }
