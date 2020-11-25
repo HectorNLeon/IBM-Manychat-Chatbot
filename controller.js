@@ -46,6 +46,7 @@ exports.ask = (req, res, next) => {
         }
         res.status(200);
         res.send(searchResponse);
+        searchResponse.content.messages[0].elements = []
       }
       else{
         response.content.messages[0].text = output
