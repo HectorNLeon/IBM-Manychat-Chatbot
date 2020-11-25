@@ -39,6 +39,7 @@ exports.ask = (req, res, next) => {
     .then(output => {
       console.log(output)
       if(Array.isArray(output)){
+        searchResponse.content.messages[0].elements = []
         for(let i= 0; i<10 && i< output.length; i++){
           searchResponse.content.messages[0].elements.push(
             {title: output[i].title, subtitle: output[i].body, image_url: "https://store.tec.mx/6545-thickbox_default/sudadera-tec-borregos-hf17003.jpg", action_url: "https://store.tec.mx/"}
@@ -46,7 +47,7 @@ exports.ask = (req, res, next) => {
         }
         res.status(200);
         res.send(searchResponse);
-        searchResponse.content.messages[0].elements = []
+        
       }
       else{
         response.content.messages[0].text = output
