@@ -70,6 +70,8 @@ exports.getMessage = function (body) {
                 .then(response => {
                     if(response.result.output.generic[0].response_type == "search"){
                         console.log(JSON.stringify(response.result, null, 2));
+                        if(response.result.output.generic[0].header == "No tenemos productos con ese criterio")
+                            resolve(response.result.output.generic[0].header)
                         resolve(response.result.output.generic[0].results)
                     }
                     console.log(JSON.stringify(response.result, null, 2));
