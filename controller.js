@@ -2,6 +2,8 @@
 
 // Se importa la función de getMessage de ./service.js
 const getMessage = require('./service').getMessage;
+
+//Estos son formatos de manychat  https://manychat.github.io/dynamic_block_docs/
 var response = {
   "version": "v2",
   "content": {
@@ -38,11 +40,14 @@ exports.ask = (req, res, next) => {
   return getMessage(req.body)
     .then(output => {
       console.log(output)
-      if(Array.isArray(output)){
-        searchResponse.content.messages[0].elements = []
-        for(let i= 0; i<10 && i< output.length; i++){
+      if(Array.isArray(output)){ //Si la respuesta es un search query 
+        searchResponse.content.messages[0].elements = [] //Vacia los elementos
+        for(let i= 0; i<10 && i< output.length; i++){ //Manychat solo permite 10
           searchResponse.content.messages[0].elements.push(
-            {title: output[i].title, subtitle: output[i].body, image_url: "https://store.tec.mx/6545-thickbox_default/sudadera-tec-borregos-hf17003.jpg", action_url: "https://store.tec.mx/"}
+            {title: output[i].title, subtitle: output[i].body, 
+              image_url: "https://store.tec.mx/6545-thickbox_default/sudadera-tec-borregos-hf17003.jpg", 
+              action_url: "https://store.tec.mx/"} //image_url y action_url estan hardcodeados ya que no se encontraban en el catalogo, 
+                                                  // se debe actualizar el catalogo
           )
         }
         res.status(200);
