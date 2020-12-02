@@ -14,17 +14,17 @@ const assistant = new AssistantV2({
     version: '2020-04-01'
 });
 
-/* Función para crear la sesión inicial.
-La sesión es importante para que el chatbot sepa distinguir entre distintas conversaciones y usuarios
-y de esta manera mantener el contexto del flujo de la conversación */
-
-var sessionId; // Se declara la variable en la que se guardará la sesión
 
 /* La clase AssistantV2 tiene una funciónla cual crea la sesión
 DOCUMENTACIÓN: https://cloud.ibm.com/apidocs/assistant/assistant-v2?code=node#create-a-session */
 
+
+/* Variable que guarda las sesiones de los usuarios
+La sesión es importante para que el chatbot sepa distinguir entre distintas conversaciones y usuarios
+y de esta manera mantener el contexto del flujo de la conversación */
 var usersChats = {};
 
+//Funcion que revisa si ya ha pasado 4 minutos sin ningun nuevo mensaje para asi borrar la sesion del usuario
 setInterval(function() {
     var time = Date.now();
     for( user in usersChats){
@@ -36,9 +36,10 @@ setInterval(function() {
 }, 500);
 
 
+//Esta funcion recibe el body, se comunica con el chatbot y regresa el mensaje
 exports.getMessage = function (body) {
     return new Promise((resolve, reject) => {
-        if (!(body.user in usersChats)){
+        if (!(body.user in usersChats)){ //Si el usuario no tiene una sesion con el chatbot
             assistant.createSession(
                 {
                     assistantId: process.env.ASSISTANT_ID || '{assistant_id}',
@@ -54,8 +55,8 @@ exports.getMessage = function (body) {
                 }
             );
         }
-        else{
-            usersChats[body.user].time = Date.now();
+        else{ 
+            usersChats[body.user].time = Date.now(); //Se reinicia el timer
             resolve(usersChats[body.user].sessionId);
         }
             
@@ -68,13 +69,11 @@ exports.getMessage = function (body) {
                     sessionId: sessionId
                 })
                 .then(response => {
-                    if(response.result.output.generic[0].response_type == "search"){
-                        console.log(JSON.stringify(response.result, null, 2));
-                        if(response.result.output.generic[0].header == "No tenemos productos con ese criterio")
+                    if(response.result.output.generic[0].response_type == "search"){ //Si la respuesta es tipo de busqueda
+                        if(response.result.output.generic[0].header == "No tenemos productos con ese criterio") //Por si la search skill no encuentra nada
                             resolve(response.result.output.generic[0].header)
                         resolve(response.result.output.generic[0].results)
                     }
-                    console.log(JSON.stringify(response.result, null, 2));
                     resolve(response.result.output.generic[0].text)
                 })
                 .catch(err => {
